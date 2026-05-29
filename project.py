@@ -1,68 +1,72 @@
 import random
+import json
+import os
 
-print("=" * 50)
-print("     ИГРА: КАМЕНЬ - НОЖНИЦЫ - БУМАГА")
-print("=" * 50)
 
-name = input("\nВведите ваше имя: ")
+def zagruz():
+    if os.path.exists("stat.json"):
+        with open("stat.json", "r") as f:
+            return json.load(f)
+    return {"win": 0, "lose": 0, "draw": 0}
 
-hands = ["камень", "ножницы", "бумага"]
 
-player_score = 0
-computer_score = 0
+def sohran(s):
+    with open("stat.json", "w") as f:
+        json.dump(s, f)
+
+
+def igra(p, c):
+    if p == c:
+        return "draw"
+    if (p == "камень" and c == "ножницы") or (p == "ножницы" and c == "бумага") or (p == "бумага" and c == "камень"):
+        return "win"
+    return "lose"
+
+
+print("=" * 40)
+print("КАМЕНЬ-НОЖНИЦЫ-БУМАГА")
+print("=" * 40)
+
+s = zagruz()
+name = input("Твое имя: ")
+
+spisok = ["камень", "ножницы", "бумага"]
 
 while True:
-    print("\n" + "-" * 40)
-    print(f"Счёт: {name} - {player_score}  |  Компьютер - {computer_score}")
-    print("-" * 40)
-
-    print("\nВыберите ход:")
-    print("1 - Камень")
-    print("2 - Ножницы")
-    print("3 - Бумага")
-    print("0 - Выйти из игры")
+    print(f"\nСчет: {name} - {s['win']} | Комп - {s['lose']} | Ничьи - {s['draw']}")
+    print("\n1-камень 2-ножницы 3-бумага 0-выход")
 
     try:
-        choice = int(input("\nВаш выбор: "))
-    except ValueError:
-        print("Ошибка! Введите число 0, 1, 2 или 3")
+        v = int(input("Выбор: "))
+    except:
+        print("Ошибка! Введи число")
         continue
 
-    if choice == 0:
-        print(f"\nИгра окончена! Финальный счёт: {name} - {player_score}  :  {computer_score} - Компьютер")
-
-        if player_score > computer_score:
-            print(f"Поздравляю, {name}, вы победили!")
-        elif player_score < computer_score:
-            print("Компьютер победил! В следующий раз повезёт!")
-        else:
-            print("Ничья!")
+    if v == 0:
+        print(f"\nИтог: {s['win']} побед, {s['lose']} поражений, {s['draw']} ничьих")
+        sohran(s)
         break
 
-    if choice not in [1, 2, 3]:
-        print("Неверный выбор! Введите 1, 2, 3 или 0")
+    if v not in [1, 2, 3]:
+        print("Введи 1,2,3 или 0")
         continue
 
-    player_hand = hands[choice - 1]
+    p = spisok[v - 1]
+    c = random.choice(spisok)
 
-    computer_hand = random.choice(hands)
+    print(f"\n{name}: {p}")
+    print(f"Компьютер: {c}")
 
-    print(f"\n{name} выбрал: {player_hand}")
-    print(f"Компьютер выбрал: {computer_hand}")
+    rez = igra(p, c)
 
-    if player_hand == computer_hand:
-        print("\nНичья!")
-    elif (player_hand == "камень" and computer_hand == "ножницы"):
-        print("\nВы выиграли этот раунд! Камень разбивает ножницы.")
-        player_score += 1
-    elif (player_hand == "ножницы" and computer_hand == "бумага"):
-        print("\nВы выиграли этот раунд! Ножницы режут бумагу.")
-        player_score += 1
-    elif (player_hand == "бумага" and computer_hand == "камень"):
-        print("\nВы выиграли этот раунд! Бумага накрывает камень.")
-        player_score += 1
+    if rez == "win":
+        print("Ты выиграл!")
+        s["win"] += 1
+    elif rez == "lose":
+        print("Компьютер выиграл!")
+        s["lose"] += 1
     else:
-        print("\nКомпьютер выиграл этот раунд!")
-        computer_score += 1
+        print("Ничья!")
+        s["draw"] += 1
 
-input("\nНажмите Enter для выхода...")
+input("\nEnter...")
